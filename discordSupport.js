@@ -1,7 +1,6 @@
-const Kirbi = require('../../kirbi');
 const chalk = require('chalk');
 
-exports.discordLogin = function () {
+exports.discordLogin = function (Kirbi) {
 	const Discord = require("discord.js");
 	Kirbi.Discord = new Discord.Client();
 	console.log(chalk.magenta(`Discord Enabled... Starting.\nDiscord.js version: ${Discord.version}`));
@@ -11,8 +10,8 @@ exports.discordLogin = function () {
 	} else {
 		console.log(chalk.red('ERROR: Kirbi must have a Discord bot token...'));
 	};
-	require('./lib/onEvent');
-	require('./antiraid');
+	require('./antiraid')(Kirbi);
+	require('./lib/onEvent')(Kirbi);
 
 	//Load external discord-specific modules
 	if (Kirbi.Config.discord.modules.length && Kirbi.Config.discord.modules instanceof Array) {
@@ -20,9 +19,9 @@ exports.discordLogin = function () {
 		Kirbi.Config.discord.modules.forEach(module => {
 			if (Kirbi.discordCommands[module]) {return};
 			try {
-				module = require(`kirbi-discord-${module}`);
+				module = require(`kirbi-discord-${module}`)(Kirbi);
 			} catch (err) {
-				Kirbi.logError(`Improper setup of the 'discord-${module}' command file. : ${err}`);
+				console.log(chalk.red(`Improper setup of the 'discord-${module}' command file. : ${err}`));
 				return;
 			}
 			if (module && module['commands']) {
@@ -41,4 +40,4 @@ exports.discordLogin = function () {
 	
 	var commandCount = Object.keys(Kirbi.Commands).length + Object.keys(Kirbi.discordCommands).length;
 	console.log(`Loaded ${commandCount} Discord chat commands`);
-}
+};

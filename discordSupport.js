@@ -1,7 +1,7 @@
 const chalk = require('chalk');
 
 exports.discordLogin = function (Kirbi) {
-	const Discord = require("discord.js");
+	const Discord = require('discord.js');
 	Kirbi.Discord = new Discord.Client();
 	console.log(chalk.magenta(`Discord Enabled... Starting.\nDiscord.js version: ${Discord.version}`));
 	if (Kirbi.Auth.discord.bot_token) {
@@ -17,6 +17,7 @@ exports.discordLogin = function (Kirbi) {
 	// Load external discord-specific modules
 	if (Kirbi.Config.discord.modules.length > 0 && Array.isArray(Kirbi.Config.discord.modules)) {
 		Kirbi.discordCommands = {};
+
 		Kirbi.Config.discord.modules.forEach(module => {
 			if (Kirbi.discordCommands[module]) {
 				return;

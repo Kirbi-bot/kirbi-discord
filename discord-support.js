@@ -12,7 +12,7 @@ exports.discordLogin = function (Kirbi) {
 	}
 
 	require('./antiraid')(Kirbi);
-	require('./lib/onEvent')(Kirbi);
+	require('./lib/on-event')(Kirbi);
 
 	// Load external discord-specific modules
 	if (Kirbi.Config.discord.modules.length > 0 && Array.isArray(Kirbi.Config.discord.modules)) {

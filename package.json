@@ -13,7 +13,7 @@
 		"Matt Carroll <admin@develogix.com> (https://develogix.com)",
 		"Joseph Moran III <joseph.moraniii@gmail.com> (https://josephmoran.co)"
 	],
-	"main": "discordSupport.js",
+	"main": "discord-support.js",
 	"dependencies": {
 		"bufferutil": "^3.0.1",
 		"chalk": "^2.1.0",

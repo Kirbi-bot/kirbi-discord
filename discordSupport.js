@@ -9,22 +9,27 @@ exports.discordLogin = function (Kirbi) {
 		Kirbi.Discord.login(Kirbi.Auth.discord.bot_token);
 	} else {
 		console.log(chalk.red('ERROR: Kirbi must have a Discord bot token...'));
-	};
+	}
+
 	require('./antiraid')(Kirbi);
 	require('./lib/onEvent')(Kirbi);
 
-	//Load external discord-specific modules
-	if (Kirbi.Config.discord.modules.length && Kirbi.Config.discord.modules instanceof Array) {
+	// Load external discord-specific modules
+	if (Kirbi.Config.discord.modules.length > 0 && Array.isArray(Kirbi.Config.discord.modules)) {
 		Kirbi.discordCommands = {};
 		Kirbi.Config.discord.modules.forEach(module => {
-			if (Kirbi.discordCommands[module]) {return};
+			if (Kirbi.discordCommands[module]) {
+				return;
+			}
+
 			try {
 				module = require(`kirbi-discord-${module}`)(Kirbi);
 			} catch (err) {
 				console.log(chalk.red(`Improper setup of the 'discord-${module}' command file. : ${err}`));
 				return;
 			}
-			if (module && module['commands']) {
+
+			if (module && module.commands) {
 				module.commands.forEach(command => {
 					if (command in module) {
 						try {
@@ -37,7 +42,7 @@ exports.discordLogin = function (Kirbi) {
 			}
 		});
 	}
-	
-	var commandCount = Object.keys(Kirbi.Commands).length + Object.keys(Kirbi.discordCommands).length;
+
+	const commandCount = Object.keys(Kirbi.Commands).length + Object.keys(Kirbi.discordCommands).length;
 	console.log(`Loaded ${commandCount} Discord chat commands`);
 };

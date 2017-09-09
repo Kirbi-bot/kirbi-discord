@@ -7,7 +7,6 @@ exports.discordLogin = function (Kirbi) {
 	if (Kirbi.Auth.discord.bot_token) {
 		console.log('Logging in to Discord...');
 		Kirbi.Discord.login(Kirbi.Auth.discord.bot_token);
-		require('./antiraid')(Kirbi);
 		require('./lib/on-event')(Kirbi);
 	} else {
 		console.log(chalk.red('ERROR: Kirbi must have a Discord bot token...'));

@@ -13,12 +13,67 @@ exports.discordLogin = Kirbi => {
 		return;
 	}
 
+	Kirbi.addDiscordCommand = (commandName, commandObject) => {
+		try {
+			Kirbi.DiscordCommands[commandName] = commandObject;
+		} catch (err) {
+			console.log(err);
+		}
+	};
+
+	Kirbi.discordCommandCount = () => {
+		return Object.keys(Kirbi.DiscordCommands).length;
+	};
+
 	Kirbi.setupDiscordCommands = () => {
+		Kirbi.DiscordCommands = {};
+
+		// Load more complex response commands from markdown files
+		let markdownCommands = [];
+		try {
+			markdownCommands = Kirbi.getJsonObject('/config/markdown-commands.json');
+		} catch (err) {
+			console.log(chalk.red(err));
+		}
+
+		markdownCommands.forEach(markdownCommand => {
+			const command = markdownCommand.command;
+			const description = markdownCommand.description;
+			const deleteRequest = markdownCommand.deleteRequest;
+			const channelRestriction = markdownCommand.channelRestriction;
+			const file = markdownCommand.file;
+
+			const messagesToSend = Kirbi.getFileContents(file);
+			if (messagesToSend) {
+				Kirbi.addDiscordCommand(command, {
+					description,
+					process: (msg, suffix, isEdit, cb) => {
+						if (channelRestriction === undefined || (channelRestriction && msg.channel.id === channelRestriction)) {
+							if (deleteRequest) {
+								msg.delete();
+							}
+
+							const messages = messagesToSend.split('=====');
+							messages.forEach(message => {
+								message = message.split('-----');
+								cb({
+									embed: {
+										color: Kirbi.Config.discord.defaultEmbedColor,
+										title: message[0].trim(),
+										description: message[1].trim()
+									}
+								}, msg);
+							});
+						}
+					}
+				});
+			}
+		});
+
 		// Load external discord-specific modules
 		if (Kirbi.Config.discord.modules.length > 0 && Array.isArray(Kirbi.Config.discord.modules)) {
-			Kirbi.discordCommands = {};
 			Kirbi.Config.discord.modules.forEach(module => {
-				if (Kirbi.discordCommands[module]) {
+				if (Kirbi.DiscordCommands[module]) {
 					return;
 				}
 
@@ -33,7 +88,7 @@ exports.discordLogin = Kirbi => {
 					module.commands.forEach(command => {
 						if (command in module) {
 							try {
-								Kirbi.discordCommands[command] = module[command];
+								Kirbi.DiscordCommands[command] = module[command];
 							} catch (err) {
 								console.log(err);
 							}
@@ -45,6 +100,5 @@ exports.discordLogin = Kirbi => {
 	};
 	Kirbi.setupDiscordCommands();
 
-	console.log(`Loaded ${Kirbi.commandCount()} base commands`);
-	console.log(`Loaded ${Object.keys(Kirbi.discordCommands).length} Discord commands`);
+	console.log(`Loaded ${Kirbi.discordCommandCount()} Discord commands`);
 };
